@@ -6,30 +6,27 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
-import os
+from app.database.db import pages_collection
 
-# ✅ Replace with your LinkedIn session cookie (Get it from browser)
 COOKIES = {
     "li_at": "AQEDATu0mtIAwZ6gAAABlZAasS0AAAGVtCc1LVYAh6hvkvnjDAExGoQePnzUgOWfFq4GGNJ7KWg5Ck1SK2TCNlBbqeefS-IVic_HPdfGvikEEvXPRpmKpfnWc68b62cAv9jAqLrcfEio-ZLZ-l4nw_7w"
 }
 
-# ✅ Path to your ChromeDriver
 CHROMEDRIVER_PATH = "C:/chromedriver.exe"
 
 def setup_driver():
     """Configures and launches Selenium WebDriver"""
     options = Options()
-    options.add_argument("--headless=new")  # Use new headless mode
+    options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--window-size=1920,1080")
-    options.add_argument("--log-level=3")  # Suppress logs
+    options.add_argument("--log-level=3")  
 
     service = Service(CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
 
-    # ✅ Open LinkedIn and apply session cookies
     driver.get("https://www.linkedin.com")
     time.sleep(3)
 
@@ -45,10 +42,8 @@ def scrape_linkedin_page(linkedin_url):
     """Scrapes LinkedIn data for company pages, profiles, or job listings"""
     driver = setup_driver()
 
-    # ✅ Open the LinkedIn page
     driver.get(linkedin_url)
 
-    # ✅ Wait for the page to load
     try:
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "body"))
@@ -57,12 +52,10 @@ def scrape_linkedin_page(linkedin_url):
         print("Page failed to load.")
         driver.quit()
         return {"error": "Failed to load page"}
-
-    # ✅ Parse the HTML
     soup = BeautifulSoup(driver.page_source, "html.parser")
     driver.quit()
 
-    # ✅ Detect Page Type (Company, Profile, or Job)
+    
     if "linkedin.com/company/" in linkedin_url:
         return extract_company_info(soup)
     elif "linkedin.com/in/" in linkedin_url:
@@ -126,7 +119,21 @@ def extract_job_info(soup):
         "location": location,
     }
 
-# ✅ Test with different types of LinkedIn URLs
+def scrape_linkedin_page(page_id):
+
+
+    scraped_data = {
+        "page_id": page_id,
+        "name": page_name,
+        "description": description,
+        "followers": followers,
+    }
+
+    result = pages_collection.insert_one(scraped_data)
+    print(f"Inserted document with ID: {result.inserted_id}")
+
+    return scraped_data
+
 if __name__ == "__main__":
     urls = [
         "https://www.linkedin.com/company/microsoft/",  # Company Page

@@ -46,3 +46,5 @@ Use LinkedIn API: If access to the LinkedIn API is obtained, it can provide a mo
 Proxy Rotation: Use proxies to avoid being blocked by LinkedIn.
 Error Handling: Improve error handling and retry mechanisms for the scraper.
 AI Summaries: Use OpenAI’s ChatGPT API to generate summaries for company pages.
+
+***Note: The scraping didn't work after trying different types of methods so i gave up because of the time limit***
